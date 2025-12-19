@@ -1,10 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { PRICING_PLANS, type PlanId } from '../config/pricing';
+import { auth } from '../services/authService';
+import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 
 interface User {
   id: string;
   email: string;
   name?: string;
+  displayName?: string;
+  photoURL?: string;
   subscription: {
     planId: PlanId;
     status: 'active' | 'trialing' | 'canceled' | 'past_due';
@@ -44,28 +48,41 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for stored user session
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    } else {
-      // Initialize with a free tier user
-      const defaultUser: User = {
-        id: 'guest',
-        email: 'guest@example.com',
-        subscription: {
-          planId: 'free',
-          status: 'active'
-        },
-        usage: {
-          postsThisMonth: 0,
-          lastResetDate: new Date()
+    // Listen to Firebase auth state changes
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
+      if (firebaseUser) {
+        // User is signed in
+        const userData: User = {
+          id: firebaseUser.uid,
+          email: firebaseUser.email || '',
+          name: firebaseUser.displayName || undefined,
+          photoURL: firebaseUser.photoURL || undefined,
+          displayName: firebaseUser.displayName || undefined,
+          subscription: {
+            planId: 'free', // Default to free, update from database
+            status: 'active'
+          },
+          usage: {
+            postsThisMonth: 0,
+            lastResetDate: new Date()
+          }
+        };
+        
+        setUser(userData);
+        localStorage.setItem('user', JSON.stringify(userData));
+      } else {
+        // User is signed out
+        const storedUser = localStorage.getItem('user');
+        if (storedUser && JSON.parse(storedUser).id !== 'guest') {
+          // Clear user data on sign out
+          setUser(null);
+          localStorage.removeItem('user');
         }
-      };
-      setUser(defaultUser);
-      localStorage.setItem('user', JSON.stringify(defaultUser));
-    }
-    setLoading(false);
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {

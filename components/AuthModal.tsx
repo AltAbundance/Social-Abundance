@@ -41,6 +41,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
       }
       
       if (user) {
+        // Firebase auth state listener will handle the user update
         onSuccess(user);
         onClose();
       }
@@ -62,6 +63,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
         : await signInWithEmail(email, password);
       
       if (user) {
+        // Firebase auth state listener will handle the user update
         onSuccess(user);
         onClose();
       }
