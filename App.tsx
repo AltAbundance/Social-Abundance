@@ -16,12 +16,17 @@ import { ContentCalendar } from './components/ContentCalendar';
 import { ScheduleModal } from './components/ScheduleModal';
 import { OnboardingTour, TourStep } from './components/OnboardingTour';
 import { IntegrationsManager } from './components/IntegrationsManager';
+import { AuthModal } from './components/AuthModal';
+import { Pricing } from './components/Pricing';
+import { UsageTracker } from './components/UsageTracker';
+import { StreakTracker } from './components/StreakTracker';
+import { UserProvider, useUser } from './contexts/UserContext';
 import { Icons, INITIAL_TONE_SETTINGS } from './constants';
 import { PlatformId, ToneSettings as ToneSettingsType, GenerationResult, VoiceProfile, SavedContent, AudiencePersona, CalendarEvent, IntegrationConfig, IntegrationServiceId } from './types';
 import { generatePlatformContent } from './services/geminiService';
 import { publishToService } from './services/integrationService';
 
-type ViewMode = 'generator' | 'voice' | 'library' | 'viral-lab' | 'dna' | 'personas' | 'matrix' | 'visuals' | 'trend-hunter' | 'calendar' | 'integrations';
+type ViewMode = 'generator' | 'voice' | 'library' | 'viral-lab' | 'dna' | 'personas' | 'matrix' | 'visuals' | 'trend-hunter' | 'calendar' | 'integrations' | 'pricing';
 
 const TOUR_STEPS: TourStep[] = [
     {
@@ -62,8 +67,10 @@ const TOUR_STEPS: TourStep[] = [
     }
 ];
 
-export const App: React.FC = () => {
+const MainApp: React.FC = () => {
+  const { user, loading, isProUser, getRemainingPosts } = useUser();
   const [currentView, setCurrentView] = useState<ViewMode>('generator');
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [inputText, setInputText] = useState('');
   const [selectedPlatforms, setSelectedPlatforms] = useState<PlatformId[]>([]);
@@ -315,12 +322,19 @@ export const App: React.FC = () => {
             { id: 'personas', label: 'Personas', icon: <Icons.Users />, desc: "Audience profiles" },
             { id: 'dna', label: 'Style Audit', icon: <Icons.DNA />, desc: "Style DNA" },
         ]
+    },
+    {
+        category: "Account",
+        items: [
+            { id: 'pricing', label: 'Pricing', icon: <Icons.Trophy />, desc: "Upgrade to Pro" },
+        ]
     }
   ];
 
   const PRIMARY_NAV_IDS = ['generator', 'library', 'calendar', 'viral-lab'];
 
   const renderContent = () => {
+      if (currentView === 'pricing') return <Pricing />;
       if (currentView === 'voice') return <VoiceTrainer onSaveProfile={handleSaveVoice} existingProfile={voiceProfile} />;
       if (currentView === 'library') return <ContentLibrary savedContent={savedContent} onDelete={handleDeleteContent} onMakeGraphic={handleOpenQuoteModal} onSchedule={handleOpenSchedule} />;
       if (currentView === 'viral-lab') return <ViralLab />;
@@ -363,7 +377,12 @@ export const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-200 selection:text-blue-900 flex flex-col">
-        <Header streak={streak} onStartTour={startTour} />
+        <Header 
+            streak={streak} 
+            onStartTour={startTour} 
+            onShowAuth={() => setShowAuthModal(true)}
+            onShowPricing={() => setCurrentView('pricing')}
+        />
         <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50 pb-safe shadow-2xl">
             <div className="grid grid-cols-5 h-16">
                 <button onClick={() => { setCurrentView('generator'); setIsMobileMenuOpen(false); }} className={`flex flex-col items-center justify-center gap-1 transition-colors border-t-2 ${currentView === 'generator' && !isMobileMenuOpen ? 'border-blue-600 text-blue-600 bg-blue-50/50' : 'border-transparent text-slate-600'}`}><Icons.Sparkles className="w-5 h-5" /><span className="text-[9px] font-black uppercase tracking-tighter">Create</span></button>
@@ -410,6 +429,21 @@ export const App: React.FC = () => {
             connectedIntegrations={integrations}
         />
         <OnboardingTour isOpen={isTourOpen} stepIndex={tourStepIndex} steps={TOUR_STEPS} onNext={handleTourNext} onPrev={handleTourPrev} onClose={closeTour} />
+        <AuthModal 
+            isOpen={showAuthModal} 
+            onClose={() => setShowAuthModal(false)} 
+            onSuccess={() => setShowAuthModal(false)} 
+        />
+        <UsageTracker />
+        {user && !isProUser() && <StreakTracker />}
     </div>
  );
+};
+
+export const App: React.FC = () => {
+  return (
+    <UserProvider>
+      <MainApp />
+    </UserProvider>
+  );
 };
