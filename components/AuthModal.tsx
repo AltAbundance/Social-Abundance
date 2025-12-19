@@ -11,9 +11,10 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: (user: any) => void;
+  forceLogin?: boolean;
 }
 
-export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => {
+export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess, forceLogin = false }) => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -95,21 +96,23 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
         width: '90%',
         position: 'relative'
       }}>
-        <button
-          onClick={onClose}
-          style={{
-            position: 'absolute',
-            top: '1rem',
-            right: '1rem',
-            background: 'none',
-            border: 'none',
-            fontSize: '1.5rem',
-            cursor: 'pointer',
-            color: '#6b7280'
-          }}
-        >
-          ×
-        </button>
+        {!forceLogin && (
+          <button
+            onClick={onClose}
+            style={{
+              position: 'absolute',
+              top: '1rem',
+              right: '1rem',
+              background: 'none',
+              border: 'none',
+              fontSize: '1.5rem',
+              cursor: 'pointer',
+              color: '#6b7280'
+            }}
+          >
+            ×
+          </button>
+        )}
 
         <h2 style={{ textAlign: 'center', marginBottom: '0.5rem' }}>
           {isSignUp ? 'Create Your Account' : 'Welcome Back'}

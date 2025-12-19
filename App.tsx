@@ -71,6 +71,13 @@ const MainApp: React.FC = () => {
   const { user, loading, isProUser, getRemainingPosts } = useUser();
   const [currentView, setCurrentView] = useState<ViewMode>('generator');
   const [showAuthModal, setShowAuthModal] = useState(false);
+  
+  // Show auth modal if user is not logged in
+  useEffect(() => {
+    if (!loading && !user) {
+      setShowAuthModal(true);
+    }
+  }, [loading, user]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [inputText, setInputText] = useState('');
   const [selectedPlatforms, setSelectedPlatforms] = useState<PlatformId[]>([]);
@@ -374,6 +381,53 @@ const MainApp: React.FC = () => {
         </div>
       );
   };
+
+  // Show loading state while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <Icons.Sparkles className="w-12 h-12 text-blue-600 mx-auto mb-4 animate-pulse" />
+          <p className="text-lg font-bold text-slate-700">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show minimal UI with auth modal if not logged in
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-200 selection:text-blue-900 flex flex-col">
+        <Header 
+          streak={0} 
+          onShowAuth={() => setShowAuthModal(true)}
+          onShowPricing={() => setShowAuthModal(true)}
+        />
+        <div className="flex-1 flex items-center justify-center p-8">
+          <div className="text-center max-w-2xl">
+            <Icons.MultiplierLogo className="w-20 h-20 text-blue-600 mx-auto mb-6" />
+            <h1 className="text-4xl font-black mb-4">Welcome to Social Abundance</h1>
+            <p className="text-xl text-slate-600 mb-8">
+              Create unlimited viral content for all your social media platforms with AI. 
+              Sign in to start your free trial.
+            </p>
+            <button
+              onClick={() => setShowAuthModal(true)}
+              className="px-8 py-4 bg-blue-600 text-white font-bold rounded-lg text-lg hover:bg-blue-700 transition-colors"
+            >
+              Get Started Free
+            </button>
+          </div>
+        </div>
+        <AuthModal 
+          isOpen={showAuthModal} 
+          onClose={() => {}} 
+          onSuccess={() => setShowAuthModal(false)} 
+          forceLogin={true}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-200 selection:text-blue-900 flex flex-col">
