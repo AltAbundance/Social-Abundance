@@ -20,6 +20,7 @@ import { AuthModal } from './components/AuthModal';
 import { Pricing } from './components/Pricing';
 import { UsageTracker } from './components/UsageTracker';
 import { StreakTracker } from './components/StreakTracker';
+import { SocialAbundanceLogo } from './components/SocialAbundanceLogo';
 import { UserProvider, useUser } from './contexts/UserContext';
 import { Icons, INITIAL_TONE_SETTINGS } from './constants';
 import { PlatformId, ToneSettings as ToneSettingsType, GenerationResult, VoiceProfile, SavedContent, AudiencePersona, CalendarEvent, IntegrationConfig, IntegrationServiceId } from './types';
@@ -387,8 +388,8 @@ const MainApp: React.FC = () => {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <Icons.Sparkles className="w-12 h-12 text-blue-600 mx-auto mb-4 animate-pulse" />
-          <p className="text-lg font-bold text-slate-700">Loading...</p>
+          <SocialAbundanceLogo size="medium" showText={false} className="animate-pulse" />
+          <p className="text-lg font-bold text-slate-700 mt-4">Loading...</p>
         </div>
       </div>
     );
@@ -405,11 +406,10 @@ const MainApp: React.FC = () => {
         />
         <div className="flex-1 flex items-center justify-center p-8">
           <div className="text-center max-w-2xl">
-            <Icons.MultiplierLogo className="w-20 h-20 text-blue-600 mx-auto mb-6" />
-            <h1 className="text-4xl font-black mb-4">Welcome to Social Abundance</h1>
-            <p className="text-xl text-slate-600 mb-8">
+            <SocialAbundanceLogo size="large" showText={true} className="mb-8" />
+            <p className="text-xl text-slate-600 mb-8 max-w-lg mx-auto">
               Create unlimited viral content for all your social media platforms with AI. 
-              Sign in to start your free trial.
+              Sign in to start your free trial with 10 posts per month.
             </p>
             <button
               onClick={() => setShowAuthModal(true)}
