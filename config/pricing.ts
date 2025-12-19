@@ -40,7 +40,8 @@ export const PRICING_PLANS = {
     id: 'pro',
     name: 'Pro',
     price: 29,
-    priceId: 'price_pro_monthly', // Replace with actual Stripe price ID
+    priceId: 'price_1Sg8faLRc0VbwZ9yZEJ41Hgl', // Monthly price ID
+    annualPriceId: 'price_1Sg8kDLRc0VbwZ9y1Xj4x37J', // Annual price ID
     features: [
       'Unlimited AI-generated content',
       'All content types (text, images, carousels, threads)',

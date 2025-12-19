@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useUser } from '../contexts/UserContext';
 
 export const UsageTracker: React.FC = () => {
-  const { user, getRemainingPosts, isProUser } = useUser();
+  const { user, getRemainingPosts, isProUser, updateSubscription } = useUser();
+  const [isVisible, setIsVisible] = useState(true);
   
-  if (!user || isProUser()) return null;
+  if (!user || isProUser() || !isVisible) return null;
   
   const remaining = getRemainingPosts();
   const total = 10; // Free tier limit
@@ -37,7 +38,25 @@ export const UsageTracker: React.FC = () => {
     }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
         <span style={{ fontWeight: 'bold', fontSize: '0.875rem' }}>Monthly Posts</span>
-        <span style={{ fontSize: '1.5rem' }}>{getEmoji()}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <span style={{ fontSize: '1.5rem' }}>{getEmoji()}</span>
+          <button
+            onClick={() => setIsVisible(false)}
+            style={{
+              background: 'none',
+              border: 'none',
+              fontSize: '1.25rem',
+              color: '#6b7280',
+              cursor: 'pointer',
+              padding: '0.25rem',
+              borderRadius: '4px',
+              lineHeight: 1
+            }}
+            title="Close"
+          >
+            ×
+          </button>
+        </div>
       </div>
       
       <div style={{ marginBottom: '0.5rem' }}>
@@ -78,6 +97,29 @@ export const UsageTracker: React.FC = () => {
           }
         </div>
       )}
+      
+      {/* Debug info - remove in production */}
+      <div style={{ marginTop: '0.5rem', fontSize: '0.625rem', color: '#6b7280', opacity: 0.7 }}>
+        User: {user?.subscription?.planId || 'unknown'} | Remaining: {remaining}
+      </div>
+      
+      {/* Temporary test button - remove in production */}
+      <button
+        onClick={() => updateSubscription('pro')}
+        style={{
+          width: '100%',
+          padding: '0.5rem',
+          marginTop: '0.5rem',
+          background: '#3b82f6',
+          color: 'white',
+          border: 'none',
+          borderRadius: '6px',
+          fontSize: '0.75rem',
+          cursor: 'pointer'
+        }}
+      >
+        Test: Upgrade to Pro
+      </button>
     </div>
   );
 };

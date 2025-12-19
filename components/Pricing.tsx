@@ -18,13 +18,18 @@ export const Pricing: React.FC = () => {
       if (!stripe) throw new Error('Stripe not loaded');
 
       // In a real app, you'd call your backend to create a checkout session
+      const plan = PRICING_PLANS[planId];
+      const selectedPriceId = billingCycle === 'yearly' && plan.annualPriceId 
+        ? plan.annualPriceId 
+        : plan.priceId;
+
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          priceId: PRICING_PLANS[planId].priceId,
+          priceId: selectedPriceId,
           billingCycle,
         }),
       });
